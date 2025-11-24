@@ -1,0 +1,125 @@
+/* Общие настройки */
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgb(30, 30, 30));
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
+
+h1 {
+    font-size: 4em;
+    letter-spacing: 3px;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #fff; }
+    to   { text-shadow: 0 0 30px #ffb700; }
+}
+
+#game-container {
+    display: flex;
+    gap: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+#game-container::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+button {
+    padding: 20px 40px;
+    font-size: 24px;
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    background-color: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+#result {
+    font-size: 36px;
+    margin-top: 40px;
+    max-width: 600px;
+    word-wrap: break-word;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.green-text {
+    color: lime;
+    text-shadow: 0 0 10px lime;
+}
+
+.yellow-text {
+    color: gold;
+    text-shadow: 0 0 10px gold;
+}
+
+.red-text {
+    color: crimson;
+    text-shadow: 0 0 10px crimson;
+}
+
+/* Пикселизированные иконки рук */
+.hand-icon {
+    font-size: 10rem; /* Очень крупный размер иконок */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.show-hand {
+    opacity: 1;
+    visibility: visible;
+}
+
+.hands-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Анимация рук */
+.shake-hand {
+    animation: shake-and-bounce 1s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake-and-bounce {
+    0%, 100% {
+        transform: translateY(-10px) rotateX(0deg);
+    }
+    25% {
+        transform: translateY(10px) rotateX(-5deg);
+    }
+    50% {
+        transform: translateY(-10px) rotateX(5deg);
+    }
+    75% {
+        transform: translateY(10px) rotateX(-5deg);
+    }
+}
