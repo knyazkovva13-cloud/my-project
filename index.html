@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Камень-Ножницы-Бумага + Магазин бустеров</title>
+    <style>
+        /* Общие настройки */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgb(30, 30, 30));
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        h1 {
+            font-size: 4em;
+            letter-spacing: 3px;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #fff; }
+            to   { text-shadow: 0 0 30px #ffb700; }
+        }
+
+        /* Левая сторона (игра) */
+        #game-section {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* Магазин бустеров */
+        #boosters {
+            font-size: 24px;
+            margin-top: 20px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .booster-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .booster-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+
+        /* Тайная кнопка для активации режима */
+        #secret-mode-button {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* Переносим кнопку вправо */
+            z-index: 999;
+        }
+
+        /* Общая настройка для кнопок */
+        button {
+            padding: 20px 40px;
+            font-size: 24px;
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            background-color: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Результаты игры */
+        #result {
+            font-size: 36px;
+            margin-top: 40px;
+            max-width: 600px;
+            word-wrap: break-word;
+            line-height: 1.5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .green-text {
+            color: lime;
+            text-shadow: 0 0 10px lime;
+        }
+
+        .yellow-text {
+            color: gold;
+            text-shadow: 0 0 10px gold;
+        }
+
+        .red-text {
+            color: crimson;
+            text-shadow: 0 0 10px crimson;
+        }
+
+        /* Статистика */
+        #stats {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Спец.кнопка для активации режима "Всегда ножницы" -->
+    <button id="secret-mode-button" onclick="activateAlwaysScissors()">?</button>
+
+    <!-- Центральная секция: игра -->
+    <section id="game-section">
+        <h1>Игра Камень-Ножницы-Бумага</h1>
+        <div id="game-container">
+            <button onclick="play('камень')">Камень</button>
+            <button onclick="play('ножницы')">Ножницы</button>
+            <button onclick="play('бумага')">Бумага</button>
+        </div>
+        <p id="result"></p>
+        <!-- Блок статистики -->
+        <div id="stats">
+            <p>Статистика:</p>
+            <p>Победы: <span id="wins">0</span></p>
+            <p>Поражения: <span id="losses">0</span></p>
+            <p>Ничьи: <span id="ties">0</span></p>
+            <p>Монеты: <span id="coins">100</span></p>
+        </div>
+    </section>
+
+    <!-- Центральный магазин бустеров -->
+    <section id="boosters-section">
+        <h1>Магазин бустеров</h1>
+        <div id="boosters">
+            <div class="booster-item">
+                <h3>Повысить ставку (+10%)</h3>
+                <p>Цена: 50 мон.</p>
+                <button onclick="buyBooster('increaseBet')">Купить</button>
+            </div>
+            <div class="booster-item">
+                <h3>Узнать следующий ход противника</h3>
+                <p>Цена: 100 мон.</p>
+                <button onclick="buyBooster('peekNextMove')">Купить</button>
+            </div>
+            <div class="booster-item">
+                <h3>Х2 монеты за победу</h3>
+                <p>Цена: 150 мон.</p>
+                <button onclick="buyBooster('doubleWinnings')">Купить</button>
+            </div>
+            <div class="booster-item">
+                <h3>Обнулить историю ходов</h3>
+                <p>Цена: 200 мон.</p>
+                <button onclick="buyBooster('resetHistory')">Купить</button>
+            </div>
+            <div class="booster-item">
+                <h3>Страховка на следующий ход</h3>
+                <p>Цена: 300 мон.</p>
+                <button onclick="buyBooster('insurance')">Купить</button>
+            </div>
+            <div class="booster-item">
+                <h3>Аннулирование последнего хода</h3>
+                <p>Цена: 400 мон.</p>
+                <button onclick="buyBooster('undoLastMove')">Купить</button>
+            </div>
+            <div class="booster-item">
+                <h3>Автоматический выбор лучшего хода</h3>
+                <p>Цена: 500 мон.</p>
+                <button onclick="buyBooster('autoBestMove')">Купить</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Возможные варианты выбора
+        const choices = ['камень', 'ножницы', 'бумага'];
+
+        // Количество монет у игрока
+        let coins = 100;
+
+        // История ходов игрока
+        let history = [];
+
+        // Текущие эффекты бустеров
+        let boosterEffects = {
+            increaseBet: false,
+            peekNextMove: false,
+            doubleWinnings: false,
+            resetHistory: false,
+            insurance: false,
+            undoLastMove: false, // Новое свойство: возможность отмены последнего хода
+            autoBestMove: false,
+            alwaysScissorsMode: false // Новое свойство: режим "Всегда ножницы"
+        };
+
+        // Генерация случайного выбора компьютера
+        function computerChoice() {
+            if (boosterEffects.alwaysScissorsMode) {
+                return 'ножницы'; // Компьютер всегда выбирает ножницы
+            }
+
+            // Анализируем предыдущие выборы игрока
+            let counts = {};
+            for (let choice of choices) {
+                counts[choice] = 0;
+            }
+            for (let i = Math.max(history.length - 5, 0); i < history.length; i++) {
+                counts[history[i]] += 1;
+            }
+
+            // Определяем наиболее вероятный следующий ход игрока
+            let mostFrequent = null;
+            let highestCount = 0;
+            for (let choice in counts) {
+                if (counts[choice] > highestCount) {
+                    mostFrequent = choice;
+                    highestCount = counts[choice];
+                }
+            }
+
+            // Генерируем выбор компьютера, основываясь на анализе
+            switch(mostFrequent) {
+                case 'камень':
+                    return 'бумага';
+                case 'ножницы':
+                    return 'камень';
+                case 'бумага':
+                    return 'ножницы';
+                default:
+                    return choices[Math.floor(Math.random() * choices.length)]; // Случайный выбор, если данных недостаточно
+            }
+        }
+
+        // Подсчет результатов
+        let wins = 0;
+        let losses = 0;
+        let ties = 0;
+
+        // Ставка игрока
+        let betAmount = 10;
+
+        // Основная логика игры
+        function play(playerSelection) {
+            const compSelection = computerChoice();
+            
+            let resultText = '';
+            let className = '';
+
+            // Применяем бустер "Аннулирования последнего хода"
+            if (boosterEffects.undoLastMove) {
+                boosterEffects.undoLastMove = false; // Деактивируем бустер после использования
+                resultText = 'Последний ход аннулирован.';
+                className = 'yellow-text';
+                // Восстанавливаем предыдущее состояние игры
+                restorePreviousState();
+            } else if (playerSelection === compSelection) {
+                resultText = 'Ничья!';
+                className = 'yellow-text';
+                ties++;
+            } else if (
+                (playerSelection === 'камень' && compSelection === 'ножницы') ||
+                (playerSelection === 'ножницы' && compSelection === 'бумага') ||
+                (playerSelection === 'бумага' && compSelection === 'камень')
+            ) {
+                resultText = 'Победа!';
+                className = 'green-text';
+                wins++;
+                coins += betAmount; // Добавляем выигранные монеты
+            } else {
+                resultText = 'Проигрыш!';
+                className = 'red-text';
+                losses++;
+                coins -= betAmount; // Уменьшаем проигранные монеты
+            }
+
+            document.getElementById('result').className = className;
+            document.getElementById('result').innerHTML = `
+                <strong>${resultText}</strong><br>
+                Ваш ход: ${playerSelection},<br>
+                Ход компьютера: ${compSelection}`;
+
+            // Обновляем статистику
+            updateStats();
+
+            // Запоминаем последний ход игрока
+            history.push(playerSelection);
+        }
+
+        // Функция восстановления предыдущего состояния игры
+        function restorePreviousState() {
+            // Возврат последних статистических данных
+            wins = parseInt(document.getElementById('wins').textContent);
+            losses = parseInt(document.getElementById('losses').textContent);
+            ties = parseInt(document.getElementById('ties').textContent);
+            coins = parseInt(document.getElementById('coins').textContent);
+        }
+
+        // Функция обновления статистики
+        function updateStats() {
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('losses').textContent = losses;
+            document.getElementById('ties').textContent = ties;
+            document.getElementById('coins').textContent = coins;
+        }
+
+        // Покупка бустера
+        function buyBooster(boostType) {
+            if (boostType === 'increaseBet' && coins >= 50) {
+                betAmount *= 1.1;                     // Повышаем ставку на 10%
+                betAmount = Number(betAmount.toFixed(2)); // Ограничиваем точность до 2-х цифр после запятой
+                coins -= 50;                          // Стоимость бонуса
+                boosterEffects.increaseBet = true;
+                updateStats();
+            } else if (boostType === 'peekNextMove' && coins >= 100) {
+                alert(`Следующий ход компьютера: ${computerChoice()}`);
+                coins -= 100;                         // Стоимость бонуса
+                boosterEffects.peekNextMove = true;
+                updateStats();
+            } else if (boostType === 'doubleWinnings' && coins >= 150) {
+                betAmount *= 2;                       // Удваиваем выигрыш
+                coins -= 150;                         // Стоимость бонуса
+                boosterEffects.doubleWinnings = true;
+                updateStats();
+            } else if (boostType === 'resetHistory' && coins >= 200) {
+                history = [];                         // Очищаем историю ходов
+                coins -= 200;                         // Стоимость бонуса
+                boosterEffects.resetHistory = true;
+                updateStats();
+            } else if (boostType === 'insurance' && coins >= 300) {
+                boosterEffects.insurance = true;      // Включаем страховку
+                coins -= 300;                         // Стоимость бонуса
+                updateStats();
+            } else if (boostType === 'undoLastMove' && coins >= 400) {
+                boosterEffects.undoLastMove = true;   // Возможность отменить последний ход
+                coins -= 400;                         // Стоимость бонуса
+                updateStats();
+            } else if (boostType === 'autoBestMove' && coins >= 500) {
+                boosterEffects.autoBestMove = true;   // Автовыбор лучшего хода
+                coins -= 500;                         // Стоимость бонуса
+                updateStats();
+            } else {
+                alert('Недостаточно монет!');
+            }
+        }
+
+        // Активация режима "Всегда ножницы"
+        function activateAlwaysScissors() {
+            const password = prompt('Введите пароль:');
+            if (password === '228') {
+                boosterEffects.alwaysScissorsMode = !boosterEffects.alwaysScissorsMode; // Переключаем режим (включаем/выключаем)
+                if (boosterEffects.alwaysScissorsMode) {
+                    alert('Пароль принят! Компьютер теперь всегда выбирает ножницы.');
+                } else {
+                    alert('Пароль принят! Компьютер вернулся к обычному выбору.');
+                }
+            } else {
+                alert('Неправильный пароль!');
+            }
+        }
+    </script>
+</body>
+</html>
